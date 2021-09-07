@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>プロジェクト</title>
+</head>
+<body>
+
+<div>
+  <form action="/train" method="post"  enctype="multipart/form-data">
+    ProjectId:<input type="text" name="project" th:value="${projectId}">
+    <input type="submit" value="訓練開始">
+  </form>
+</div>
+<hr>
+<div>
+  <form action="/search" method="post"  enctype="multipart/form-data">
+    ProjectId:<input type="text" name="project"  th:value="${projectId}"><br/>
+    <textarea name="query" style="width: 500px;height: 200px;" th:text="${query}"></textarea><br />
+    <input type="submit" value="検索">
+  </form>
+</div>
+<div>
+  <pre th:text="${result_text}"></pre>
+</div>
+</body>
+</html>
