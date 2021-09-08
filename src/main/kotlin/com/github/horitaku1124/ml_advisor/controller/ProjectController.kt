@@ -7,6 +7,8 @@ import com.github.horitaku1124.ml_advisor.dao.TrainDataDao
 import com.github.horitaku1124.ml_advisor.dao.TrainLabelDao
 import com.github.horitaku1124.ml_advisor.entities.SearchForm
 import com.github.horitaku1124.ml_advisor.entities.TrainForm
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping
 @Controller
 class ProjectController(var trainDataDao: TrainDataDao,
                         var trainLabelDao: TrainLabelDao) {
+  var logger: Logger = LoggerFactory.getLogger(ProjectController::class.java)
   companion object {
     var allWords = hashMapOf<Int, List<String>>()
     var allFrequent = hashMapOf<Int, WordFrequent>()
@@ -33,7 +36,9 @@ class ProjectController(var trainDataDao: TrainDataDao,
             model: MutableMap<String, Any>) : String {
     val projectId = trainEntity.project!!
     val trainData = trainDataDao.findAllById(projectId)
+    logger.info("train start projectId=$projectId")
     trainDo(projectId, trainData)
+    logger.info("train finish projectId=$projectId")
     model["result_text"] = "訓練完了"
     model["projectId"] = projectId
 
@@ -48,27 +53,39 @@ class ProjectController(var trainDataDao: TrainDataDao,
     var modUas = MorphologicalAnalysis.parse(searchWord)
     var allLabel = trainLabelDao.findAll(projectId)
 
-    println("searchWord=" + searchWord)
+    logger.info("searchWord=$searchWord")
     val wf = allFrequent[projectId]!!
     val words = allWords[projectId]!!
     val vecByBrowser = allCentroidByBrowser[projectId]!!
     var vec = wf.testScore(modUas, words)
     println(vec)
-    var resultBuf = StringBuffer()
+
+    var scoreAndId = arrayListOf<Pair<Double, Int>>()
     vecByBrowser.forEach { resultId, centroid ->
-      var label = allLabel[resultId]!!
-      var score = VectorUtil.cosSim(centroid, vec)
+      val score = VectorUtil.cosSim(centroid, vec)
+      scoreAndId.add(Pair(score, resultId))
+    }
+
+    scoreAndId.sortByDescending { it.first }
+    var resultBuf = StringBuffer()
+    scoreAndId.forEach {
+      val (score, resultId) = it
+      val label = allLabel[resultId]!!
       resultBuf
+        .append(String.format("%3.2f", score))
+        .append(" - ")
         .append(label.first)
         .append(" - ")
         .append(label.second)
-        .append(" - ")
-        .append(score)
         .append("\n")
     }
+
+
     model["result_text"] = resultBuf.toString()
     model["projectId"] = projectId
     model["query"] = searchWord
+
+    logger.info("finish")
 
     return "index"
   }
