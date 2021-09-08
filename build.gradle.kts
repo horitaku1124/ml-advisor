@@ -7,7 +7,7 @@ plugins {
 	kotlin("plugin.spring") version "1.5.30"
 }
 
-group = "com.example"
+group = "com.github.horitaku1124"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
