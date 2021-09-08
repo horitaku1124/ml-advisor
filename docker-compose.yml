@@ -2,13 +2,13 @@ services:
   app:
     build: .
     ports:
-      - 9001:8080
+      - "9011:9011"
   db:
     image: mariadb:10.6
     restart: always
 
     ports:
-      - 9002:3306
+      - "9012:3306"
     environment:
       MARIADB_DATABASE: ml_advisor
       MARIADB_ROOT_PASSWORD: test
