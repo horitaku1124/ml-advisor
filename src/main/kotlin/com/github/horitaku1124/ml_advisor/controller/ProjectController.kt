@@ -28,6 +28,7 @@ class ProjectController(var trainDataDao: TrainDataDao,
   @GetMapping("/project/{projectId}")
   fun index(@PathVariable("projectId") projectId: Int,
             model: MutableMap<String, Any>) : String {
+    model["projectId"] = projectId
     return "index"
   }
 
@@ -61,7 +62,7 @@ class ProjectController(var trainDataDao: TrainDataDao,
     println(vec)
 
     var scoreAndId = arrayListOf<Pair<Double, Int>>()
-    vecByBrowser.forEach { resultId, centroid ->
+    vecByBrowser.forEach { (resultId, centroid) ->
       val score = VectorUtil.cosSim(centroid, vec)
       scoreAndId.add(Pair(score, resultId))
     }
@@ -79,7 +80,6 @@ class ProjectController(var trainDataDao: TrainDataDao,
         .append(label.second)
         .append("\n")
     }
-
 
     model["result_text"] = resultBuf.toString()
     model["projectId"] = projectId

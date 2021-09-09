@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>プロジェクト</title>
+</head>
+<body>
+<section>
+  <p>プロジェクト一覧</p>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+    </tr>
+    <tr th:each="row, ite : ${projects}">
+      <td th:text="${row.id}"></td>
+      <td><a th:href="'/project/' + ${row.id}" th:text="${row.name}"></a></td>
+    </tr>
+  </table>
+</section>
+<hr>
+<section>
+  <p>ツール</p>
+  <a href="/segmentation">単語分割</a>
+</section>
+</body>
+</html>
