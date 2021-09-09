@@ -3,8 +3,10 @@ package com.github.horitaku1124.ml_advisor.controller
 import com.github.horitaku1124.blog_manager.util.MorphologicalAnalysis
 import com.github.horitaku1124.blog_manager.util.VectorUtil
 import com.github.horitaku1124.blog_manager.util.WordFrequent
+import com.github.horitaku1124.ml_advisor.dao.ProjectDao
 import com.github.horitaku1124.ml_advisor.dao.TrainDataDao
 import com.github.horitaku1124.ml_advisor.dao.TrainLabelDao
+import com.github.horitaku1124.ml_advisor.entities.ProjectForm
 import com.github.horitaku1124.ml_advisor.entities.SearchForm
 import com.github.horitaku1124.ml_advisor.entities.TrainForm
 import org.slf4j.Logger
@@ -17,12 +19,27 @@ import org.springframework.web.bind.annotation.PostMapping
 
 @Controller
 class ProjectController(var trainDataDao: TrainDataDao,
-                        var trainLabelDao: TrainLabelDao) {
+                        var trainLabelDao: TrainLabelDao,
+                        var projectDao: ProjectDao
+) {
   var logger: Logger = LoggerFactory.getLogger(ProjectController::class.java)
   companion object {
     var allWords = hashMapOf<Int, List<String>>()
     var allFrequent = hashMapOf<Int, WordFrequent>()
     var allCentroidByBrowser = hashMapOf<Int, HashMap<Int, List<Double>>>()
+  }
+
+  @GetMapping("/project/new")
+  fun new(model: MutableMap<String, Any>) : String {
+    return "project_new"
+  }
+
+  @PostMapping("/project/created")
+  fun created(@Validated project: ProjectForm,
+            model: MutableMap<String, Any>) : String {
+    var id = projectDao.create(project)
+    model["projectId"] = id
+    return "project_created"
   }
 
   @GetMapping("/project/{projectId}")
