@@ -7,11 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping
 @Controller
 class TopController(var projectDao: ProjectDao) {
   @GetMapping("/")
-  fun index() : String {
-    return "index"
-  }
-
-  @GetMapping("/top")
   fun top(model: MutableMap<String, Any>) : String {
     model["projects"] = projectDao.findAll()
     return "top"

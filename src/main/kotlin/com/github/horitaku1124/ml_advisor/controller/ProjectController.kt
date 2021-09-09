@@ -29,7 +29,7 @@ class ProjectController(var trainDataDao: TrainDataDao,
   fun index(@PathVariable("projectId") projectId: Int,
             model: MutableMap<String, Any>) : String {
     model["projectId"] = projectId
-    return "index"
+    return "project"
   }
 
   @PostMapping("/train")
@@ -43,7 +43,7 @@ class ProjectController(var trainDataDao: TrainDataDao,
     model["result_text"] = "訓練完了"
     model["projectId"] = projectId
 
-    return "index"
+    return "project"
   }
 
   @PostMapping("/search")
@@ -87,7 +87,7 @@ class ProjectController(var trainDataDao: TrainDataDao,
 
     logger.info("finish")
 
-    return "index"
+    return "project"
   }
 
   fun trainDo(projectId: Int, trainData: List<Pair<Int, String>>) {
