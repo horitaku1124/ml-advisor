@@ -1,30 +1,25 @@
 package com.github.horitaku1124.ml_advisor.controller
 
 import com.github.horitaku1124.blog_manager.util.MorphologicalAnalysis
-import com.github.horitaku1124.blog_manager.util.VectorUtil
-import com.github.horitaku1124.blog_manager.util.WordFrequent
-import com.github.horitaku1124.ml_advisor.dao.TrainDataDao
-import com.github.horitaku1124.ml_advisor.dao.TrainLabelDao
-import com.github.horitaku1124.ml_advisor.entities.SearchForm
 import com.github.horitaku1124.ml_advisor.entities.SegmentationForm
-import com.github.horitaku1124.ml_advisor.entities.TrainForm
+import org.json.simple.JSONArray
+import org.json.simple.JSONObject
+import org.json.simple.parser.JSONParser
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest.BodyPublishers.ofString
+import java.net.http.HttpRequest.newBuilder
+import java.net.http.HttpResponse.BodyHandlers.ofString
 
 @Controller
-class ToolsController(var trainDataDao: TrainDataDao,
-                      var trainLabelDao: TrainLabelDao) {
+class ToolsController {
   var logger: Logger = LoggerFactory.getLogger(ToolsController::class.java)
-  companion object {
-    var allWords = hashMapOf<Int, List<String>>()
-    var allFrequent = hashMapOf<Int, WordFrequent>()
-    var allCentroidByBrowser = hashMapOf<Int, HashMap<Int, List<Double>>>()
-  }
 
   @GetMapping("/segmentation")
   fun segmentation(model: MutableMap<String, Any>) : String {
@@ -46,5 +41,39 @@ class ToolsController(var trainDataDao: TrainDataDao,
     model["result_text"] = result.toString()
 
     return "segmentation"
+  }
+
+  @GetMapping("/segmentation_ja")
+  fun segmentationJa(model: MutableMap<String, Any>) : String {
+    return "segmentation_ja"
+  }
+
+  @PostMapping("/segmentation_ja")
+  fun segmentationJaExe(@Validated segmentationForm: SegmentationForm,
+            model: MutableMap<String, Any>) : String {
+    val query = segmentationForm.query ?: ""
+
+    val postData = JSONObject()
+    postData["word"] = query
+
+    val client = HttpClient.newHttpClient()
+    val request = newBuilder()
+      .uri(URI.create("http://127.0.0.1:9013/"))
+      .setHeader("Content-Type", "application/json")
+      .POST(ofString(postData.toString()))
+      .build()
+
+    val response = client.send(request, ofString())
+
+    val result = StringBuffer()
+
+    val jsonParser = JSONParser()
+    val obj = jsonParser.parse(response.body()) as JSONObject
+    val tokens = obj["tokens"] as JSONArray
+    result.append(tokens.joinToString(" ") )
+
+    model["query"] = query
+    model["result_text"] = result.toString()
+    return "segmentation_ja"
   }
 }
