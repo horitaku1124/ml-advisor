@@ -7,6 +7,7 @@ import org.json.simple.JSONObject
 import org.json.simple.parser.JSONParser
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -19,6 +20,9 @@ import java.net.http.HttpResponse.BodyHandlers.ofString
 
 @Controller
 class ToolsController {
+  @Value("\${docker.janome-url}")
+  private var janomeUrl: String? = null
+
   var logger: Logger = LoggerFactory.getLogger(ToolsController::class.java)
 
   @GetMapping("/segmentation")
@@ -56,9 +60,11 @@ class ToolsController {
     val postData = JSONObject()
     postData["word"] = query
 
+    println("janomeUrl=" + janomeUrl)
+
     val client = HttpClient.newHttpClient()
     val request = newBuilder()
-      .uri(URI.create("http://127.0.0.1:9013/"))
+      .uri(URI.create(janomeUrl!!))
       .setHeader("Content-Type", "application/json")
       .POST(ofString(postData.toString()))
       .build()
