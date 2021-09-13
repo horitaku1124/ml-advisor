@@ -1,6 +1,8 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: ./docker/app/Dockerfile
     ports:
       - "9011:9011"
   db:
@@ -15,6 +17,14 @@ services:
       TZ: Asia/Tokyo
     volumes:
       - ml-db-data:/var/lib/mysql
+
+  janome:
+    build: ./docker/janome/
+    ports:
+      - "9013:8000"
+    tty: true
+    volumes:
+      - ./python:/root/work
 
 volumes:
   ml-db-data:
