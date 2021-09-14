@@ -5,6 +5,9 @@ from django.views.decorators.csrf import csrf_exempt
 from janome.tokenizer import Tokenizer
 tokenizer = Tokenizer()
 
+"""
+https://mocobeta.github.io/janome/
+"""
 @csrf_exempt
 def index(request):
 

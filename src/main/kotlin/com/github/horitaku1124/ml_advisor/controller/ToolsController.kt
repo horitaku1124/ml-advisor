@@ -57,10 +57,11 @@ class ToolsController {
             model: MutableMap<String, Any>) : String {
     val query = segmentationForm.query ?: ""
 
-    val postData = JSONObject()
-    postData["word"] = query
-
-    println("janomeUrl=" + janomeUrl)
+    val postData = JSONObject().also {
+      it["word"] = query
+        .replace("\r\n", " ")
+        .replace("\n", " ")
+    }
 
     val client = HttpClient.newHttpClient()
     val request = newBuilder()
