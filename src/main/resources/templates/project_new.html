@@ -12,6 +12,11 @@
 <div>
   <form action="/project/created" method="post"  enctype="multipart/form-data">
     <p>Name:<input type="text" name="name"></p>
+    <p>
+      Type:
+      <label><input type="radio" name="type" value="1">単純分割</label>&nbsp;
+      <label><input type="radio" name="type" value="2">形態素分割</label>
+    </p>
     <input type="submit" value="登録">
   </form>
 </div>

@@ -18,6 +18,7 @@
     <tr th:each="row, ite : ${projects}">
       <td th:text="${row.id}"></td>
       <td><a th:href="'/project/' + ${row.id}" th:text="${row.name}"></a></td>
+      <td><a th:href="'/project/' + ${row.id} + '/edit'">編集</a></td>
     </tr>
   </table>
 </section>

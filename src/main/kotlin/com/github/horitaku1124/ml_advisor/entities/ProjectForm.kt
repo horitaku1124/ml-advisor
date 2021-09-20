@@ -4,4 +4,6 @@ import javax.validation.constraints.NotEmpty
 class ProjectForm {
   @NotEmpty
   var name: String? = null
+  @NotEmpty
+  var type: String? = null
 }

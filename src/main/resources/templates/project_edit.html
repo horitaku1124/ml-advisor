@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>プロジェクト</title>
+</head>
+<body>
+<p>
+  <a href="/">TOP</a>
+</p>
+
+<div>
+  <form
+      th:action="'/project/' + ${project.id} + '/updated'" method="post"
+      enctype="multipart/form-data">
+    <p>Name:<input type="text" name="name" th:value="${project.name}"></p>
+    <p>
+      Type:
+      <label><input type="radio" name="type" value="1" th:checked="${project.type eq 1}">単純分割</label>&nbsp;
+      <label><input type="radio" name="type" value="2" th:checked="${project.type eq 2}">形態素分割</label>
+    </p>
+    <input type="submit" value="変更">
+  </form>
+</div>
+</body>
+</html>
