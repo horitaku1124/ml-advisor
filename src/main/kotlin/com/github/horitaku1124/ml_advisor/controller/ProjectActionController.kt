@@ -12,9 +12,12 @@ import com.github.horitaku1124.ml_advisor.entities.TrainForm
 import com.github.horitaku1124.ml_advisor.service.JanomeCommunicator
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.ResponseBody
 
 @Controller
 class ProjectActionController(var projectDao: ProjectDao,
@@ -49,32 +52,12 @@ class ProjectActionController(var projectDao: ProjectDao,
   fun search(@Validated searchEntity: SearchForm,
              model: MutableMap<String, Any>) : String {
     val projectId = searchEntity.project!!
-    val project = projectDao.findById(projectId).get()
     val searchWord = searchEntity.query!!
     val allLabel = trainLabelDao.findAll(projectId)
 
-//    logger.info("searchWord=$searchWord")
-    val wf = allFrequent[projectId]!!
-    val words = allWords[projectId]!!
-    val vecByBrowser = allCentroidByBrowser[projectId]!!
-
-    val modUas = when (project.type) {
-      1 -> MorphologicalAnalysis.parse(searchWord)
-      2 -> janomeCommunicator.parseRequest(searchWord)
-      else -> throw RuntimeException("")
-    }
-//    println(modUas)
-    val vec = wf.testScore(modUas, words)
-//    println(vec)
-
-    val scoreAndId = arrayListOf<Pair<Double, Int>>()
-    vecByBrowser.forEach { (resultId, centroid) ->
-      val score = VectorUtil.cosSim(centroid, vec)
-      scoreAndId.add(Pair(score, resultId))
-    }
-
-    scoreAndId.sortByDescending { it.first }
     val resultBuf = StringBuffer()
+
+    val scoreAndId = searchDo(projectId, searchWord)
     scoreAndId.forEach {
       val (score, resultId) = it
       val label = allLabel[resultId]!!
@@ -94,6 +77,53 @@ class ProjectActionController(var projectDao: ProjectDao,
     logger.info("finish")
 
     return "project"
+  }
+
+  @PostMapping("/search.json", produces = [MediaType.APPLICATION_JSON_VALUE])
+  fun searchJson(@Validated searchEntity: SearchForm) : ResponseEntity<List<Map<String, Any>>> {
+    val projectId = searchEntity.project!!
+    val searchWord = searchEntity.query!!
+    val allLabel = trainLabelDao.findAll(projectId)
+
+    val scoreAndId = searchDo(projectId, searchWord)
+
+    val result = scoreAndId.map {
+      val (score, resultId) = it
+
+      hashMapOf(
+        Pair("id", resultId),
+        Pair("score", score),
+        Pair("label", allLabel[resultId]!!.first),
+      )
+    }
+
+    logger.info("finish")
+
+    return ResponseEntity.ok(result)
+  }
+
+  fun searchDo(projectId: Int, searchWord: String): List<Pair<Double, Int>> {
+    val project = projectDao.findById(projectId).get()
+
+    val wf = allFrequent[projectId]!!
+    val words = allWords[projectId]!!
+    val vecByBrowser = allCentroidByBrowser[projectId]!!
+
+    val modUas = when (project.type) {
+      1 -> MorphologicalAnalysis.parse(searchWord)
+      2 -> janomeCommunicator.parseRequest(searchWord)
+      else -> throw RuntimeException("")
+    }
+    val vec = wf.testScore(modUas, words)
+
+    val scoreAndId = arrayListOf<Pair<Double, Int>>()
+    vecByBrowser.forEach { (resultId, centroid) ->
+      val score = VectorUtil.cosSim(centroid, vec)
+      scoreAndId.add(Pair(score, resultId))
+    }
+
+    scoreAndId.sortByDescending { it.first }
+    return scoreAndId
   }
 
   fun trainDo(project: ProjectEntity, trainData: List<Pair<Int, String>>) {
