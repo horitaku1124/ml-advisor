@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseBody
 
 @Controller
@@ -79,8 +80,10 @@ class ProjectActionController(var projectDao: ProjectDao,
     return "project"
   }
 
-  @PostMapping("/search.json", produces = [MediaType.APPLICATION_JSON_VALUE])
-  fun searchJson(@Validated searchEntity: SearchForm) : ResponseEntity<List<Map<String, Any>>> {
+  @PostMapping("/search.json",
+    produces = [MediaType.APPLICATION_JSON_VALUE],
+  )
+  fun searchJson(@RequestBody @Validated searchEntity: SearchForm) : ResponseEntity<List<Map<String, Any>>> {
     val projectId = searchEntity.project!!
     val searchWord = searchEntity.query!!
     val allLabel = trainLabelDao.findAll(projectId)
@@ -132,6 +135,7 @@ class ProjectActionController(var projectDao: ProjectDao,
     val allDocsByLines = arrayListOf<List<String>>()
     val browserByLine = arrayListOf<Int>()
     trainData.forEach{row ->
+      logger.info("extract " + (browserByLine.size + 1)) // TODO should be debug
       val modUas = when (project.type) {
         1 -> MorphologicalAnalysis.parse(row.second)
         2 -> janomeCommunicator.parseRequest(row.second)
@@ -147,6 +151,7 @@ class ProjectActionController(var projectDao: ProjectDao,
     val vecsByLine = arrayListOf<List<Double>>()
     val vectorsByBrowser = HashMap<Int, ArrayList<List<Double>>>()
     val uniqueWords = preUniqueWords.distinct()
+    logger.info("start classification")
     val wf = WordFrequent(allDocsByLines)
     for (i in 0 until allDocsByLines.size) {
       val vec = wf.toScoreVec(i, uniqueWords)
@@ -159,6 +164,7 @@ class ProjectActionController(var projectDao: ProjectDao,
       }
       vecsByLine.add(vec)
     }
+    logger.info("finish classification")
 
     val centroidByBrowser = HashMap<Int, List<Double>>()
     vectorsByBrowser.forEach { (browser, vectors) ->
