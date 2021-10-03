@@ -9,6 +9,7 @@ import com.github.horitaku1124.ml_advisor.dao.TrainLabelDao
 import com.github.horitaku1124.ml_advisor.entities.ProjectEntity
 import com.github.horitaku1124.ml_advisor.entities.SearchForm
 import com.github.horitaku1124.ml_advisor.entities.TrainForm
+import com.github.horitaku1124.ml_advisor.models.KNearestNeighbor
 import com.github.horitaku1124.ml_advisor.service.JanomeCommunicator
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -18,7 +19,6 @@ import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.ResponseBody
 
 @Controller
 class ProjectActionController(var projectDao: ProjectDao,
@@ -31,7 +31,7 @@ class ProjectActionController(var projectDao: ProjectDao,
   companion object {
     var allWords = hashMapOf<Int, List<String>>()
     var allFrequent = hashMapOf<Int, WordFrequent>()
-    var allCentroidByBrowser = hashMapOf<Int, HashMap<Int, List<Double>>>()
+    var allCentroidByLabel = hashMapOf<Int, KNearestNeighbor.KnnResult<Int>>()
   }
 
   @PostMapping("/train")
@@ -110,32 +110,26 @@ class ProjectActionController(var projectDao: ProjectDao,
 
     val wf = allFrequent[projectId]!!
     val words = allWords[projectId]!!
-    val vecByBrowser = allCentroidByBrowser[projectId]!!
+    val centroidByLabel = allCentroidByLabel[projectId]!!
 
     val modUas = when (project.type) {
       1 -> MorphologicalAnalysis.parse(searchWord)
       2 -> janomeCommunicator.parseRequest(searchWord)
       else -> throw RuntimeException("")
     }
-    val vec = wf.testScore(modUas, words)
+    val vec = wf.testScore2(modUas, words)
 
-    val scoreAndId = arrayListOf<Pair<Double, Int>>()
-    vecByBrowser.forEach { (resultId, centroid) ->
-      val score = VectorUtil.cosSim(centroid, vec)
-      scoreAndId.add(Pair(score, resultId))
-    }
-
-    scoreAndId.sortByDescending { it.first }
-    return scoreAndId
+    val model = KNearestNeighbor<Int>()
+    return model.scoring(centroidByLabel, vec)
   }
 
   fun trainDo(project: ProjectEntity, trainData: List<Pair<Int, String>>) {
     val projectId = project.id
     val preUniqueWords = arrayListOf<String>()
     val allDocsByLines = arrayListOf<List<String>>()
-    val browserByLine = arrayListOf<Int>()
+    val labelByLine = arrayListOf<Int>()
     trainData.forEach{row ->
-      logger.info("extract " + (browserByLine.size + 1)) // TODO should be debug
+      logger.info("extract " + (labelByLine.size + 1)) // TODO should be debug
       val modUas = when (project.type) {
         1 -> MorphologicalAnalysis.parse(row.second)
         2 -> janomeCommunicator.parseRequest(row.second)
@@ -145,36 +139,32 @@ class ProjectActionController(var projectDao: ProjectDao,
       preUniqueWords.addAll(modUas)
 
       allDocsByLines.add(modUas)
-      browserByLine.add(row.first)
+      labelByLine.add(row.first)
     }
 
-    val vecsByLine = arrayListOf<List<Double>>()
-    val vectorsByBrowser = HashMap<Int, ArrayList<List<Double>>>()
+    val vectorsByLabel = HashMap<Int, ArrayList<DoubleArray>>()
     val uniqueWords = preUniqueWords.distinct()
     logger.info("start classification")
     val wf = WordFrequent(allDocsByLines)
     for (i in 0 until allDocsByLines.size) {
-      val vec = wf.toScoreVec(i, uniqueWords)
-      val browser = browserByLine[i]
+      val vec = wf.toScoreVec2(i, uniqueWords)
+      val label = labelByLine[i]
 //      println("$i - $browser $vec")
-      if (vectorsByBrowser.containsKey(browser)) {
-        vectorsByBrowser[browser]!!.add(vec)
+      if (vectorsByLabel.containsKey(label)) {
+        vectorsByLabel[label]!!.add(vec)
       } else {
-        vectorsByBrowser[browser] = arrayListOf(vec)
+        vectorsByLabel[label] = arrayListOf(vec)
       }
-      vecsByLine.add(vec)
     }
     logger.info("finish classification")
 
-    val centroidByBrowser = HashMap<Int, List<Double>>()
-    vectorsByBrowser.forEach { (browser, vectors) ->
-      centroidByBrowser[browser] = VectorUtil.vecAverage(vectors)
-    }
-//    println(centroidByBrowser)
+    val model = KNearestNeighbor<Int>()
+    val trainedData = model.train(vectorsByLabel)
+    println(trainedData)
 
     // TODO make these persistent other than static vars
     ProjectActionController.allWords[projectId] = uniqueWords
     ProjectActionController.allFrequent[projectId] = wf
-    ProjectActionController.allCentroidByBrowser[projectId] = centroidByBrowser
+    ProjectActionController.allCentroidByLabel[projectId] = trainedData
   }
 }

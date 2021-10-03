@@ -21,6 +21,22 @@ class VectorUtil {
       return top / (sqrt(bottom1) * sqrt(bottom2))
     }
 
+    fun cosSim2(list1: DoubleArray , list2: DoubleArray): Double {
+      var top = 0.0
+      var bottom1 = 0.0
+      var bottom2 = 0.0
+      for (i in list1.indices) {
+        val l = list1[i]
+        val r = list2[i]
+
+        top += l * r
+
+        bottom1 += l * l
+        bottom2 += r * r
+      }
+      return top / (sqrt(bottom1) * sqrt(bottom2))
+    }
+
     fun kmeans(num: Int, vectors: List<List<Double>>):
         Pair<Map<Int, List<Int>>, List<List<Double>>> {
       val width = vectors[0].size
@@ -109,6 +125,21 @@ class VectorUtil {
       for (i in 0 until width) {
         averages.add(0.0)
       }
+      for (j in vec1.indices) {
+        for (l in vec1[j].indices) {
+          averages[l] += vec1[j][l]
+        }
+      }
+      for (l in 0 until width) {
+        averages[l] = averages[l] / vec1.size
+      }
+      return averages
+    }
+
+    fun vecAverage2(vec1: List<DoubleArray>): DoubleArray {
+      val width = vec1[0].size
+      val averages = DoubleArray(width) { 0.0 }
+
       for (j in vec1.indices) {
         for (l in vec1[j].indices) {
           averages[l] += vec1[j][l]

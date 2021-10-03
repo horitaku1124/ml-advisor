@@ -48,20 +48,19 @@ class WordFrequent(var docs: List<List<String>>) {
     return if (tfidf.isNaN()) 0.0 else tfidf
   }
 
-  /**
-   * TODO ListではなくSetでは？
-   */
-  fun toScoreVec(docIndex:Int, allUniqueWords: List<String>): List<Double> {
-    val wordVec = arrayListOf<Double>()
-    for (word in allUniqueWords) {
-      wordVec.add(getTfIdf(docIndex, word))
+  fun toScoreVec2(docIndex:Int, allUniqueWords: List<String>): DoubleArray {
+    val vecs = DoubleArray(allUniqueWords.size) {0.0}
+    for (i in allUniqueWords.indices) {
+      vecs[i] = getTfIdf(docIndex, allUniqueWords[i])
     }
-    return wordVec
+    return vecs
   }
 
-  fun testScore(testDoc: List<String>, allUniqueWords: List<String>): List<Double> {
-    val wordVec = arrayListOf<Double>()
-    for (word in allUniqueWords) {
+  fun testScore2(testDoc: List<String>, allUniqueWords: List<String>): DoubleArray {
+    val vecs = DoubleArray(allUniqueWords.size) {0.0}
+
+    for (i in allUniqueWords.indices) {
+      val word = allUniqueWords[i]
       val wordCount1 = testDoc.stream().filter{ it == word}.count().toDouble()
 
       val tf = wordCount1 / testDoc.size
@@ -69,8 +68,8 @@ class WordFrequent(var docs: List<List<String>>) {
       val tfidf = tf * idf
       val score = if (tfidf.isNaN()) 0.0 else tfidf
 
-      wordVec.add(score)
+      vecs[i] = score
     }
-    return wordVec
+    return vecs
   }
 }
