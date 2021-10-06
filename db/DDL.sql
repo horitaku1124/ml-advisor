@@ -3,6 +3,7 @@ create table projects
     id int auto_increment
         primary key,
     name varchar(255) not null,
+    property varchar(255) default '' not null,
     created_at timestamp default current_timestamp() null,
     updated_at timestamp default current_timestamp() null
 );
