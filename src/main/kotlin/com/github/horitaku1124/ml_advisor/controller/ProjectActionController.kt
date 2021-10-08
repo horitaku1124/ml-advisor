@@ -58,7 +58,8 @@ class ProjectActionController(var projectDao: ProjectDao,
 
     val resultBuf = StringBuffer()
 
-    val scoreAndId = searchDo(projectId, searchWord)
+    var scoreAndId = searchDo(projectId, searchWord)
+    scoreAndId = scoreAndId.sortedByDescending { it.first }
     scoreAndId.forEach {
       val (score, resultId) = it
       val label = allLabel[resultId]!!
