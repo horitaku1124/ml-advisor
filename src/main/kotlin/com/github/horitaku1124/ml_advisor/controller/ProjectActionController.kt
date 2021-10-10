@@ -150,7 +150,6 @@ class ProjectActionController(var projectDao: ProjectDao,
     for (i in 0 until allDocsByLines.size) {
       val vec = wf.toScoreVec2(i, uniqueWords)
       val label = labelByLine[i]
-//      println("$i - $browser $vec")
       if (vectorsByLabel.containsKey(label)) {
         vectorsByLabel[label]!!.add(vec)
       } else {
