@@ -4,8 +4,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 
 @SpringBootApplication
-class AiAdviseApp
+class MlAdviseApp
 
 fun main(args: Array<String>) {
-	runApplication<AiAdviseApp>(*args)
+	runApplication<MlAdviseApp>(*args)
 }

@@ -83,4 +83,9 @@ class ToolsController {
     model["result_text"] = result.toString()
     return "segmentation_ja"
   }
+
+  @GetMapping("/reduce_dimension")
+  fun reduceDimension(model: MutableMap<String, Any>) : String {
+    return "reduce_dimension"
+  }
 }

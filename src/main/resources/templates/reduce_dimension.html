@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <script src="https://bossanova.uk/jspreadsheet/v4/jexcel.js"></script>
+  <link rel="stylesheet" href="https://bossanova.uk/jspreadsheet/v4/jexcel.css" type="text/css" />
+
+  <script src="https://jsuites.net/v4/jsuites.js"></script>
+  <link rel="stylesheet" href="https://jsuites.net/v4/jsuites.css" type="text/css" />
+  <script src="https://cdn.jsdelivr.net/npm/pca-js@1.0.0/pca.min.js"></script>
+
+  <title>次元削減</title>
+</head>
+<body>
+<p>
+  <a href="/">TOP</a>
+</p>
+
+<section>
+  <p>次元削減</p>
+
+  <div>
+    <input type="button" value="計算" onclick="calc();">
+  </div>
+
+  <div id="eigen_vectors"></div>
+  <div id="spreadsheet"></div>
+
+  <script>
+    const jss = jspreadsheet(document.getElementById('spreadsheet'), {
+      minDimensions:[3, 5],
+    });
+    function calc() {
+      console.time("calc");
+      const data = jss.getData();
+      let floatData = [];
+      for (let i = 0;i < data.length;i++) {
+        let row = [];
+        for (let j = 0;j < data[i].length;j++) {
+          row.push(parseFloat(data[i][j]));
+        }
+        floatData.push(row);
+      }
+      var vectors = PCA.getEigenVectors(floatData);
+
+      console.timeLog("calc");
+      let eigenVectors = [];
+
+      for (let i = 0;i < vectors.length;i++) {
+        let row = [];
+        for (let j = 0;j < vectors[i].vector.length;j++) {
+          row.push(vectors[i].vector[j]);
+        }
+        eigenVectors.push(row);
+      }
+      console.log(eigenVectors);
+
+      document.getElementById('eigen_vectors').innerHTML = arrayToTableRank2(eigenVectors);
+
+      jss.insertColumn(data[0].length + 1);
+
+      for (let i = 0;i < floatData.length;i++) {
+        let newVec = dotProduct1x2(floatData[i], eigenVectors);
+        data[i].push("");
+        for (let cell of newVec) {
+          data[i].push(cell);
+        }
+      }
+      jss.setData(data);
+      console.timeEnd("calc");
+    }
+    function dotProduct1x2(left, right) {
+      let row = [];
+      for (let i = 0;i < right.length;i++) {
+        let sum = 0.0;
+        for (let j = 0;j < right[i].length;j++) {
+          sum += left[j] * right[i][j];
+        }
+        row.push(sum);
+      }
+      return row;
+    }
+
+    function arrayToTableRank2(data) {
+      let table = "<table>";
+      for (let i = 0;i < data.length;i++) {
+        table += "<tr>";
+        for (let j = 0;j < data[i].length;j++) {
+          table += "<td>" + data[i][j] + "</td>";
+        }
+        table += "</tr>\n";
+      }
+      table += "</table>"
+      return table;
+    }
+  </script>
+</section>
+
+</body>
+</html>
