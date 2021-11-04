@@ -46,7 +46,7 @@ class ProjectActionController(var projectDao: ProjectDao,
     model["result_text"] = "訓練完了"
     model["projectId"] = projectId
 
-    return "project"
+    return "project/project"
   }
 
   @PostMapping("/search")
@@ -78,7 +78,7 @@ class ProjectActionController(var projectDao: ProjectDao,
 
     logger.info("finish")
 
-    return "project"
+    return "project/project"
   }
 
   @PostMapping("/search.json",

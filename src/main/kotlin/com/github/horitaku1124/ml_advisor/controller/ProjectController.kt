@@ -13,7 +13,7 @@ class ProjectController(var projectDao: ProjectDao) {
 
   @GetMapping("/project/new")
   fun new(model: MutableMap<String, Any>) : String {
-    return "project_new"
+    return "project/project_new"
   }
 
   @PostMapping("/project/created")
@@ -21,14 +21,14 @@ class ProjectController(var projectDao: ProjectDao) {
             model: MutableMap<String, Any>) : String {
     val id = projectDao.create(project)
     model["projectId"] = id
-    return "project_created"
+    return "project/project_created"
   }
 
   @GetMapping("/project/{projectId}")
   fun index(@PathVariable("projectId") projectId: Int,
             model: MutableMap<String, Any>) : String {
     model["projectId"] = projectId
-    return "project"
+    return "project/project"
   }
 
   @GetMapping("/project/{projectId}/edit")
@@ -37,7 +37,7 @@ class ProjectController(var projectDao: ProjectDao) {
     model["projectId"] = projectId
     val project = projectDao.findById(projectId).get()
     model["project"] = project
-    return "project_edit"
+    return "project/project_edit"
   }
 
   @PostMapping("/project/{projectId}/updated")
@@ -46,6 +46,6 @@ class ProjectController(var projectDao: ProjectDao) {
                   model: MutableMap<String, Any>) : String {
     model["projectId"] = projectId
     projectDao.update(projectId, project)
-    return "project_created"
+    return "project/project_created"
   }
 }
