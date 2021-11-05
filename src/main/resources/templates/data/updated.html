@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>プロジェクト</title>
+</head>
+<body>
+<p>
+  <a href="/">TOP</a>
+  ≫
+  <a th:href="'/project/' + ${projectId} + '/data'">データTOP</a>
+</p>
+
+<div>
+  <p>更新しました：ID=<span th:text="${dataId}"></span></p>
+</div>
+</body>
+</html>

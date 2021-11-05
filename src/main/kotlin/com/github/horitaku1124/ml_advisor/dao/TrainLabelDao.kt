@@ -85,6 +85,7 @@ class TrainLabelDao {
     }
     throw RuntimeException("insert error")
   }
+
   fun update(labelId: Int, label: LabelForm) {
     val param = hashMapOf<String, Any>().also {
       it["id"] = labelId

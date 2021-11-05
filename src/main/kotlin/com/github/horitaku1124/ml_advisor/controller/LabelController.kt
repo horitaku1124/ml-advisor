@@ -2,7 +2,6 @@ package com.github.horitaku1124.ml_advisor.controller
 
 import com.github.horitaku1124.ml_advisor.dao.TrainLabelDao
 import com.github.horitaku1124.ml_advisor.entities.LabelForm
-import com.github.horitaku1124.ml_advisor.entities.ProjectForm
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping

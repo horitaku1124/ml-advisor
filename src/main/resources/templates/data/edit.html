@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>プロジェクト</title>
+</head>
+<body>
+<p>
+  <a href="/">TOP</a>
+  ≫
+  <a th:href="'/project/' + ${projectId} + '/data'">データTOP</a>
+</p>
+
+<div>
+  <form th:action="'/project/' + ${projectId} + '/data/' + ${dataId} + '/updated'" method="post"  enctype="multipart/form-data">
+    <table>
+      <tr>
+        <th>正解ラベル</th>
+        <td>
+          <select name="result_id">
+            <option th:each="option,idx : ${allLabelMap}" th:value="${option.first}" th:selected="${option.first == row.resultId}" th:inline="text">[[${option.second}]]</option>
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <th>データ</th>
+        <td>
+          <textarea name="data" id="" style="width: 500px;height: 200px;" th:text="${row.data}"></textarea>
+        </td>
+      </tr>
+    </table>
+
+    <input type="submit" value="更新">
+  </form>
+</div>
+</body>
+</html>
