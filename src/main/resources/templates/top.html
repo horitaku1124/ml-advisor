@@ -3,6 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <title>プロジェクト</title>
+  <style>
+    .tb1 {
+      border-collapse: collapse;
+    }
+    .tb1 tr td, .tb1 tr th {
+      border: 1px solid #aaa;
+      padding: 5px;
+    }
+  </style>
 </head>
 <body>
 <section>
@@ -10,15 +19,22 @@
   <p>
     <a href="/project/new">新規プロジェクト</a>
   </p>
-  <table>
+  <table class="tb1">
     <tr>
       <th>ID</th>
       <th>Name</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
     </tr>
     <tr th:each="row, ite : ${projects}">
       <td th:text="${row.id}"></td>
       <td><a th:href="'/project/' + ${row.id}" th:text="${row.name}"></a></td>
       <td><a th:href="'/project/' + ${row.id} + '/edit'">編集</a></td>
+      <td><a th:href="'/project/' + ${row.id} + '/label'">ラベル編集</a></td>
+      <td><a th:href="'/project/' + ${row.id} + '/edit'">データ編集</a></td>
+      <td><a th:href="'/project/' + ${row.id} + '/edit'">削除</a></td>
     </tr>
   </table>
 </section>

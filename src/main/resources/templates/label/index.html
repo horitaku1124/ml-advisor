@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>プロジェクト</title>
+  <style>
+    .tb1 {
+      border-collapse: collapse;
+    }
+    .tb1 tr td, .tb1 tr th {
+      border: 1px solid #aaa;
+      padding: 5px;
+    }
+  </style>
+</head>
+<body>
+<p>
+  <a href="/">TOP</a>
+</p>
+<div>
+  <p>
+    <a th:href="'/project/'  + ${projectId} + '/label/new'">新規ラベル</a>
+  </p>
+  <table class="tb1">
+    <tr>
+      <th>ID</th>
+      <th>Slug</th>
+      <th></th>
+      <th></th>
+    </tr>
+    <tr th:each="row, ite : ${labels}">
+      <td th:text="${row.id}"></td>
+      <td th:text="${row.slug}"></td>
+      <td><a th:href="'/project/' + ${projectId} + '/label/' + ${row.id} + '/edit'">編集</a></td>
+      <td><a th:href="'/project/' + ${projectId} + '/label/' + ${row.id} + '/delete'">削除</a></td>
+    </tr>
+  </table>
+</div>
+
+</body>
+</html>

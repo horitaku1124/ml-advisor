@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>プロジェクト</title>
+</head>
+<body>
+<p>
+  <a href="/">TOP</a>
+  ≫
+  <a th:href="'/project/' + ${projectId} + '/label'">ラベルTOP</a>
+</p>
+
+<div>
+  <form th:action="'/project/' + ${projectId} + '/label/' + ${labelId} + '/deleted'" method="post" >
+    <p>Slug:<span th:text="${row.slug}"></span></p>
+
+    <input type="submit" value="削除">
+  </form>
+</div>
+</body>
+</html>
