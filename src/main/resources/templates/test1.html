@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>次元削減</title>
+</head>
+<body>
+<p>
+  <a href="/">TOP</a>
+</p>
+
+<section>
+  <p>TF/IDF</p>
+  <section>
+    <form action="test1_2" method="post">
+      <textarea name="query" ></textarea>
+      <input type="submit">
+    </form>
+
+    <pre th:text="${form.result}"></pre>
+  </section>
+</section>
+
+</body>
+</html>

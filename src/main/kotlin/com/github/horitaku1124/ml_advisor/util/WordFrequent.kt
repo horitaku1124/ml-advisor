@@ -72,4 +72,21 @@ class WordFrequent(var docs: List<List<String>>) {
     }
     return vecs
   }
+
+  fun getTfIdfArray(testDoc: List<String>): DoubleArray {
+    val vecs = DoubleArray(testDoc.size) {0.0}
+
+    for (i in testDoc.indices) {
+      val word = testDoc[i]
+      val wordCount1 = testDoc.stream().filter{ it == word}.count().toDouble()
+
+      val tf = wordCount1 / testDoc.size
+      val idf = getIdf(word)
+      val tfidf = tf * idf
+      val score = if (tfidf.isNaN()) 0.0 else tfidf
+
+      vecs[i] = score
+    }
+    return vecs
+  }
 }

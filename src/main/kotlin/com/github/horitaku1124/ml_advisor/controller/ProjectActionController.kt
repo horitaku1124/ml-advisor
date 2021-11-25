@@ -1,7 +1,6 @@
 package com.github.horitaku1124.ml_advisor.controller
 
 import com.github.horitaku1124.blog_manager.util.MorphologicalAnalysis
-import com.github.horitaku1124.blog_manager.util.VectorUtil
 import com.github.horitaku1124.blog_manager.util.WordFrequent
 import com.github.horitaku1124.ml_advisor.dao.ProjectDao
 import com.github.horitaku1124.ml_advisor.dao.TrainDataDao
@@ -19,6 +18,10 @@ import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import java.io.File
+import java.nio.file.Files
+import javax.annotation.PostConstruct
+
 
 @Controller
 class ProjectActionController(var projectDao: ProjectDao,
@@ -32,6 +35,32 @@ class ProjectActionController(var projectDao: ProjectDao,
     var allWords = hashMapOf<Int, List<String>>()
     var allFrequent = hashMapOf<Int, WordFrequent>()
     var allCentroidByLabel = hashMapOf<Int, KNearestNeighbor.KnnResult<Int>>()
+
+    var jaCopus = WordFrequent(emptyList())
+  }
+
+  @PostConstruct
+  fun init() {
+    logger.info("start init")
+    val dir = File("./src/main/resources/japanese_corpus")
+    val preUniqueWords = arrayListOf<String>()
+    val allDocsByLines = arrayListOf<List<String>>()
+    for (file in dir.listFiles()!!) {
+      logger.debug("processing " + file.name)
+      val lines = Files.readAllLines(file.toPath())
+      val docWords = arrayListOf<String>()
+      for (line in lines) {
+        val modUas = janomeCommunicator.parseRequest(line)
+        docWords.addAll(modUas)
+
+        preUniqueWords.addAll(modUas)
+      }
+
+      allDocsByLines.add(docWords)
+    }
+
+    jaCopus = WordFrequent(allDocsByLines)
+    logger.info("finish init")
   }
 
   @PostMapping("/train")
@@ -81,7 +110,8 @@ class ProjectActionController(var projectDao: ProjectDao,
     return "project/project"
   }
 
-  @PostMapping("/search.json",
+  @PostMapping(
+    "/search.json",
     produces = [MediaType.APPLICATION_JSON_VALUE],
   )
   fun searchJson(@RequestBody @Validated searchEntity: SearchForm) : ResponseEntity<List<Map<String, Any>>> {
