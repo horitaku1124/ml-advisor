@@ -43,23 +43,27 @@ class ProjectActionController(var projectDao: ProjectDao,
   fun init() {
     logger.info("start init")
     val dir = File("./src/main/resources/japanese_corpus")
-    val preUniqueWords = arrayListOf<String>()
-    val allDocsByLines = arrayListOf<List<String>>()
-    for (file in dir.listFiles()!!) {
-      logger.debug("processing " + file.name)
-      val lines = Files.readAllLines(file.toPath())
-      val docWords = arrayListOf<String>()
-      for (line in lines) {
-        val modUas = janomeCommunicator.parseRequest(line)
-        docWords.addAll(modUas)
+    if (dir.exists()) {
+      val preUniqueWords = arrayListOf<String>()
+      val allDocsByLines = arrayListOf<List<String>>()
+      for (file in dir.listFiles()!!) {
+        logger.debug("processing " + file.name)
+        val lines = Files.readAllLines(file.toPath())
+        val docWords = arrayListOf<String>()
+        for (line in lines) {
+          val modUas = janomeCommunicator.parseRequest(line)
+          docWords.addAll(modUas)
 
-        preUniqueWords.addAll(modUas)
+          preUniqueWords.addAll(modUas)
+        }
+
+        allDocsByLines.add(docWords)
       }
 
-      allDocsByLines.add(docWords)
+      jaCopus = WordFrequent(allDocsByLines)
+    } else {
+      logger.warn("japanese_corpus doesn't exit")
     }
-
-    jaCopus = WordFrequent(allDocsByLines)
     logger.info("finish init")
   }
 
