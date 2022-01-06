@@ -1,4 +1,4 @@
-package com.example.demo
+package com.github.horitaku1124.ml_advisor
 
 import com.github.horitaku1124.ml_advisor.models.KNearestNeighbor
 import com.github.horitaku1124.util.CSVReader

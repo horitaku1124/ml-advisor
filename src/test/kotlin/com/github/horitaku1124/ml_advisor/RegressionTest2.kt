@@ -1,4 +1,4 @@
-package com.example.demo
+package com.github.horitaku1124.ml_advisor
 
 import com.github.horitaku1124.blog_manager.util.MorphologicalAnalysis
 import com.github.horitaku1124.blog_manager.util.WordFrequent
