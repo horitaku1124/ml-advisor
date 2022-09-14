@@ -9,7 +9,7 @@ udf = './user_defined_dictionary.csv'
 size = os.path.getsize(udf)
 
 if size > 0:
-    print("loading " + udf)
+    print("loading " + udf + "  " + str(size) + " bytes")
     tokenizer = Tokenizer(udf, udic_enc='utf8')
 else:
     print("skip to load " + udf)

@@ -4,9 +4,6 @@ import com.github.horitaku1124.blog_manager.util.MorphologicalAnalysis
 import com.github.horitaku1124.ml_advisor.entities.SegmentationForm
 import com.github.horitaku1124.ml_advisor.entities.Test1Form
 import com.github.horitaku1124.ml_advisor.service.JanomeCommunicator
-import org.json.simple.JSONArray
-import org.json.simple.JSONObject
-import org.json.simple.parser.JSONParser
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -14,11 +11,6 @@ import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest.BodyPublishers.ofString
-import java.net.http.HttpRequest.newBuilder
-import java.net.http.HttpResponse.BodyHandlers.ofString
 
 @Controller
 class ToolsController(

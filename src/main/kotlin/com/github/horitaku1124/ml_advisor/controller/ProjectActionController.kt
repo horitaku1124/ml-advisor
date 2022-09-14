@@ -10,6 +10,7 @@ import com.github.horitaku1124.ml_advisor.entities.SearchForm
 import com.github.horitaku1124.ml_advisor.entities.TrainForm
 import com.github.horitaku1124.ml_advisor.models.KNearestNeighbor
 import com.github.horitaku1124.ml_advisor.service.JanomeCommunicator
+import org.json.simple.parser.ParseException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
@@ -165,16 +166,20 @@ class ProjectActionController(var projectDao: ProjectDao,
     val labelByLine = arrayListOf<Int>()
     trainData.forEach{row ->
       logger.info("extract " + (labelByLine.size + 1)) // TODO should be debug
-      val modUas = when (project.type) {
-        1 -> MorphologicalAnalysis.parse(row.second)
-        2 -> janomeCommunicator.parseRequest(row.second)
-        else -> throw RuntimeException("")
+      try {
+        val modUas = when (project.type) {
+          1 -> MorphologicalAnalysis.parse(row.second)
+          2 -> janomeCommunicator.parseRequest(row.second)
+          else -> throw RuntimeException("")
+        }
+
+        preUniqueWords.addAll(modUas)
+
+        allDocsByLines.add(modUas)
+        labelByLine.add(row.first)
+      } catch(e: ParseException) {
+        e.printStackTrace()
       }
-
-      preUniqueWords.addAll(modUas)
-
-      allDocsByLines.add(modUas)
-      labelByLine.add(row.first)
     }
 
     val vectorsByLabel = HashMap<Int, ArrayList<DoubleArray>>()
