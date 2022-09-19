@@ -19,6 +19,7 @@ import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.ResponseBody
 import java.io.File
 import java.nio.file.Files
 import javax.annotation.PostConstruct
@@ -114,17 +115,17 @@ class ProjectActionController(var projectDao: ProjectDao,
 
     return "project/project"
   }
-
-  @PostMapping(
-    "/search.json",
-    produces = [MediaType.APPLICATION_JSON_VALUE],
-  )
-  fun searchJson(@RequestBody @Validated searchEntity: SearchForm) : ResponseEntity<List<Map<String, Any>>> {
+  
+  @PostMapping("/search.json",
+    produces = ["application/json"])
+  fun searchJson(@Validated searchEntity: SearchForm,
+             model: MutableMap<String, Any>): ResponseEntity<List<Map<String, Any>>> {
     val projectId = searchEntity.project!!
     val searchWord = searchEntity.query!!
     val allLabel = trainLabelDao.findAll(projectId)
 
-    val scoreAndId = searchDo(projectId, searchWord)
+    var scoreAndId = searchDo(projectId, searchWord)
+    scoreAndId = scoreAndId.sortedByDescending { it.first }
 
     val result = scoreAndId.map {
       val (score, resultId) = it
@@ -135,8 +136,6 @@ class ProjectActionController(var projectDao: ProjectDao,
         Pair("label", allLabel[resultId]!!.first),
       )
     }
-
-    logger.info("finish")
 
     return ResponseEntity.ok(result)
   }
@@ -199,7 +198,6 @@ class ProjectActionController(var projectDao: ProjectDao,
 
     val model = KNearestNeighbor<Int>()
     val trainedData = model.train(vectorsByLabel)
-    println(trainedData)
 
     // TODO make these persistent other than static vars
     ProjectActionController.allWords[projectId] = uniqueWords

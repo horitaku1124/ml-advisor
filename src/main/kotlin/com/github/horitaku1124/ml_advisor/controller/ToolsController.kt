@@ -6,7 +6,6 @@ import com.github.horitaku1124.ml_advisor.entities.Test1Form
 import com.github.horitaku1124.ml_advisor.service.JanomeCommunicator
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,9 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping
 class ToolsController(
   var janomeCommunicator: JanomeCommunicator
 ) {
-  @Value("\${docker.janome-url}")
-  private var janomeUrl: String? = null
-
   var logger: Logger = LoggerFactory.getLogger(ToolsController::class.java)
 
   @GetMapping("/segmentation")
@@ -63,26 +59,26 @@ class ToolsController(
     return "reduce_dimension"
   }
 
-  @GetMapping("/test1")
-  fun test1(model: MutableMap<String, Any>) : String {
+  @GetMapping("/td_idf")
+  fun tdIdf(model: MutableMap<String, Any>) : String {
     model["form"] = Test1Form()
-    return "test1"
+    return "td_idf"
   }
 
-  @PostMapping("/test1_2")
-  fun test12(@Validated test1Form: Test1Form,
+  @PostMapping("/td_idf_2")
+  fun tdIdf2(@Validated test1Form: Test1Form,
              model: MutableMap<String, Any>) : String {
     if (test1Form.query != null) {
-      var query = test1Form.query!!
+      val query = test1Form.query!!
       val modUas = janomeCommunicator.parseRequest(query).distinct()
       val vec = ProjectActionController.jaCopus.getTfIdfArray(modUas)
-      var pairs = arrayListOf<Pair<Int, Double>>()
+      val pairs = arrayListOf<Pair<Int, Double>>()
 
       for (i in vec.indices) {
         pairs.add(Pair(i, vec[i]))
       }
 
-      var pairs2 = pairs.sortedByDescending { it.second }
+      val pairs2 = pairs.sortedByDescending { it.second }
 
       var result = ""
       for (i in pairs2) {
@@ -91,6 +87,6 @@ class ToolsController(
       test1Form.result = result
     }
     model["form"] = test1Form
-    return "test1"
+    return "td_idf"
   }
 }
