@@ -17,6 +17,7 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseBody
@@ -116,11 +117,11 @@ class ProjectActionController(var projectDao: ProjectDao,
     return "project/project"
   }
 
-  @PostMapping("/search.json",
+  @PostMapping("/{projectId}/search.json",
     produces = ["application/json"])
-  fun searchJson(@Validated searchEntity: SearchForm,
-             model: MutableMap<String, Any>): ResponseEntity<List<Map<String, Any>>> {
-    val projectId = searchEntity.project!!
+  fun searchJson(@PathVariable("projectId") projectId: Int,
+                 @Validated searchEntity: SearchForm,
+                 model: MutableMap<String, Any>): ResponseEntity<List<Map<String, Any>>> {
     val searchWord = searchEntity.query!!
     val allLabel = trainLabelDao.findAll(projectId)
 

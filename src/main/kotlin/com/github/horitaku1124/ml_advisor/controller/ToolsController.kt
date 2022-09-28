@@ -60,7 +60,7 @@ class ToolsController(
   }
 
   @GetMapping("/tf_idf")
-  fun tdIdf(model: MutableMap<String, Any>) : String {
+  fun tfIdf(model: MutableMap<String, Any>) : String {
     model["form"] = Test1Form()
     return "tf_idf"
   }
