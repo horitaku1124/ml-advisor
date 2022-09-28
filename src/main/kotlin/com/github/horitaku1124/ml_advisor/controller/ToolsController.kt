@@ -59,14 +59,14 @@ class ToolsController(
     return "reduce_dimension"
   }
 
-  @GetMapping("/td_idf")
+  @GetMapping("/tf_idf")
   fun tdIdf(model: MutableMap<String, Any>) : String {
     model["form"] = Test1Form()
-    return "td_idf"
+    return "tf_idf"
   }
 
-  @PostMapping("/td_idf_2")
-  fun tdIdf2(@Validated test1Form: Test1Form,
+  @PostMapping("/tf_idf_2")
+  fun tfIdf2(@Validated test1Form: Test1Form,
              model: MutableMap<String, Any>) : String {
     if (test1Form.query != null) {
       val query = test1Form.query!!
@@ -87,6 +87,6 @@ class ToolsController(
       test1Form.result = result
     }
     model["form"] = test1Form
-    return "td_idf"
+    return "tf_idf"
   }
 }
