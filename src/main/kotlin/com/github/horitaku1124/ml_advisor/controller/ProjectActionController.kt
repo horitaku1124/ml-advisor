@@ -115,7 +115,7 @@ class ProjectActionController(var projectDao: ProjectDao,
 
     return "project/project"
   }
-  
+
   @PostMapping("/search.json",
     produces = ["application/json"])
   fun searchJson(@Validated searchEntity: SearchForm,
