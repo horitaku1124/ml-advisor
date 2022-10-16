@@ -13,18 +13,14 @@ import com.github.horitaku1124.ml_advisor.service.JanomeCommunicator
 import org.json.simple.parser.ParseException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.ResponseBody
 import java.io.File
 import java.nio.file.Files
 import javax.annotation.PostConstruct
-
 
 @Controller
 class ProjectActionController(var projectDao: ProjectDao,
@@ -77,9 +73,9 @@ class ProjectActionController(var projectDao: ProjectDao,
     val project = projectDao.findById(projectId).get()
     val trainData = trainDataDao.findAllById(projectId)
     logger.info("train start projectId=$projectId")
-    trainDo(project, trainData)
+
     logger.info("train finish projectId=$projectId")
-    model["result_text"] = "訓練完了"
+    model["result_text"] = trainDo(project, trainData)
     model["projectId"] = projectId
 
     return "project/project"
@@ -159,13 +155,13 @@ class ProjectActionController(var projectDao: ProjectDao,
     return model.scoring(centroidByLabel, vec)
   }
 
-  fun trainDo(project: ProjectEntity, trainData: List<Pair<Int, String>>) {
+  fun trainDo(project: ProjectEntity, trainData: List<Pair<Int, String>>): String {
     val projectId = project.id
     val preUniqueWords = arrayListOf<String>()
     val allDocsByLines = arrayListOf<List<String>>()
     val labelByLine = arrayListOf<Int>()
     trainData.forEach{row ->
-      logger.info("extract " + (labelByLine.size + 1)) // TODO should be debug
+      logger.debug("extract " + (labelByLine.size + 1))
       try {
         val modUas = when (project.type) {
           1 -> MorphologicalAnalysis.parse(row.second)
@@ -200,9 +196,28 @@ class ProjectActionController(var projectDao: ProjectDao,
     val model = KNearestNeighbor<Int>()
     val trainedData = model.train(vectorsByLabel)
 
+    // 訓練後に正解率を求める
+    var successNum = 0
+    trainData.forEach { row ->
+      val modUas = when (project.type) {
+        1 -> MorphologicalAnalysis.parse(row.second)
+        2 -> janomeCommunicator.parseRequest(row.second)
+        else -> throw RuntimeException("")
+      }
+      val vec = wf.testScore2(modUas, uniqueWords)
+
+      val top = model.scoring(trainedData, vec)
+      if (top[0].second == row.first) {
+        successNum++
+      }
+    }
+    val successRatio = successNum.toString() + " / " + trainData.size +
+        " " + (successNum * 100 / trainData.size) + "%"
+
     // TODO make these persistent other than static vars
     ProjectActionController.allWords[projectId] = uniqueWords
     ProjectActionController.allFrequent[projectId] = wf
     ProjectActionController.allCentroidByLabel[projectId] = trainedData
+    return "訓練完了\n$successRatio"
   }
 }
